@@ -106,6 +106,8 @@ Let $\hat \pi = \frac{4n_u}{n}$ be the estimate of $\pi$.\\
 We need the minimum $n$ such that $ P(\pi - 0.01 \le \hat\pi \le \pi + 0.01) = 0.95$\\
 Let $a = \pi - 0.01, b = \pi + 0.01$, thus, we need $P(a \le \frac{4n_u}{n} \le b) = P(\frac{na}{4} \le n_u \le \frac{nb}{4}) = 0.95$\\
 We know that a binomial RV can be approximated by a Gaussian when $n$ is large (Central Limit Theorem).\\
+$ P(\frac{n(\pi - 0.01)}{4}-\frac{n\pi}{4} \le n_u-\frac{n\pi}{4} \le \frac{n(\pi+0.04)}{4}-\frac{n\pi}{4}) = 0.95 $\\
+$ P(\frac{-n(0.01)}{4} \le n_u-\frac{n\pi}{4} \le \frac{n(0.04)}{4}) = 0.95 $\\
 (TODO: normalize $n_u$ to standard normal and then see the table for 95\% confidence interval)
 
 \subsection*{Instructions for running the code:}
@@ -129,6 +131,33 @@ We know that a binomial RV can be approximated by a Gaussian when $n$ is large (
 \addcontentsline{toc}{section}{Question 3}
 \setcounter{equation}{0}
 \setcounter{figure}{0}
+We have been given observed set of data $\{ \mathbf{z}_i \}_{i=1}^{N}$, where $\mathbf{z}_i = (x_i, y_i)$\\
+We need to find a linear relationship between the RVs $X$ and $Y$
+
+\medskip
+Thus, we need to find $m, c$ such that $Y \approx mX + c$ using PCA.\\
+This is essentially dimensionality reduction from $\mathbb{R}^2$ to $\mathbb{R}$\\
+Thus, we need to find the first principal mode of variance/principal component of $\{ \mathbf{z}_i \}_{i=1}^{N}$
+
+\medskip
+Let the sample mean be $\mu = \bigg(\mu_1 = \frac{\sum_{i=1}^{N}x_i}{N},\  \mu_2 = \frac{\sum_{i=1}^{N}y_i}{N}\bigg)$, then first we center the data about $\mu$.\\
+Let the sample covariance matrix of the new centered data be $C$.\\
+On eigenvalue decomposition of $C$, we get $C = Q\Lambda Q^T$, let $\mathbf{d}$ correspond to the diagonal values of $\Lambda$, let $j = \text{argmax}_{i: 1\le i\le 2} \ \mathbf{d}$, then the $j^{th}$ column of Q corresponds to the principal mode of variation, $\mathbf{v} = (v_1, v_2)$
+
+\medskip
+Thus, $m = \frac{v_2}{v_1}$, and $y = mx$, since this was the centered coordinate system (about $\mu$), we need to shift back to the original coordinate system, thus, the final straight line will be $y-\mu_2 = m(x - \mu_1)$
+
+\medskip
+The same method as above has been implemented in \texttt{q3.m}
+
+\medskip
+The second set of points don't have a straight line relationship, as PCA fits the data along a straight line, this leads to a worse quality approximation compared to the first dataset, in which the points had a straight line relationship.
+
+\subsection*{Instructions for running the code:}
+\begin{enumerate}[itemsep=-1ex]
+    \item Unzip and \texttt{cd} to \texttt{code}, under this find the file named \texttt{q3.m}
+    \item Find the variable \texttt{PATH\_TO\_LOAD} on the $7^{th}$ line, change this to \texttt{DATA\_PATH\_1} or \texttt{DATA\_PATH\_2} accordingly, run the file, a scatter plot with a fitted line will generated and saved to the \texttt{plots} folder.
+\end{enumerate}
 
 \newpage
 \section*{Question 4}
