@@ -26,7 +26,7 @@ clear i;
 clear img;
 clear path;
 
-% Compute sample mean
+% Compute sample mean of the original data
 mu = sum(data, 2)./N;
 
 % Preprocessing:
@@ -44,7 +44,7 @@ C = (1/(N-1)).*(data * data');
 
 clear C;
 
-Q4 = Q(:, 1:4); % First 4 columns of Q
+Q4 = Q(:, 1:4); % First 4 columns of Q, normalized eigenvectors of C
 eigvals = diag(L); % All diagonal values in a column vector
 
 clear Q;
@@ -77,18 +77,18 @@ grid on;
 xlabel("n");
 ylabel("Eigenvalue");
 title("Question 6: First 10 Eigenvalues");
-saveas(gca, "plots/q6/q6ii.jpg");
+saveas(gcf, "plots/q6/q6ii.jpg");
 hold off;
 
 % Part 2: Reconstruction of original data
 coeffs = data' * Q4; % 16x4
-data_reconstructed = Q4*coeffs';
+data_reconstructed = mu./255 + Q4*coeffs';
 
 hold off;
 for i=1:16
     f = figure('visible', 'off');
     subplot(1, 2, 1);
-    image(toImg(data(:, i), SHAPE));
+    image(toImg(data(:, i)+mu./255, SHAPE)); % Original uncentered image
     title("Original: "+i);
     pbaspect([1 1 1]);
     axis off;
