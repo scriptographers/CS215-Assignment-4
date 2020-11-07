@@ -26,14 +26,15 @@ clear i;
 clear img;
 clear path;
 
-% Compute sample mean of the original data
+% Normalization
+data = data./255;
+
+% Compute sample mean of the original (normalized) data
 mu = sum(data, 2)./N;
 
 % Preprocessing:
 % Centering the data about mu
 data = data - mu; 
-% Normalization
-data = data./255;
 
 % Computing the covariance matrix (19200 x 19200) matrix (This shall take up 2.6GB of your RAM)
 C = (1/(N-1)).*(data * data');
@@ -82,13 +83,13 @@ hold off;
 
 % Part 2: Reconstruction of original data
 coeffs = data' * Q4; % 16x4
-data_reconstructed = mu./255 + Q4*coeffs';
+data_reconstructed = mu + Q4*coeffs';
 
 hold off;
 for i=1:16
     f = figure('visible', 'off');
     subplot(1, 2, 1);
-    image(toImg(data(:, i)+mu./255, SHAPE)); % Original uncentered image
+    image(toImg(mu + data(:, i), SHAPE)); % Original uncentered image
     title("Original: "+i);
     pbaspect([1 1 1]);
     axis off;

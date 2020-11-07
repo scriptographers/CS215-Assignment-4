@@ -187,6 +187,57 @@ Thus, trying to reduce the dimension of the data to 1, in data which varies alon
 \addcontentsline{toc}{section}{Question 6}
 \setcounter{equation}{0}
 \setcounter{figure}{0}
+Let $d = 80\times80\times3$\\
+Let the sample mean of the original data be $\mu \in \mathbb{R}^d$, the sample covariance matrix of the original data be $C \in \mathbb{R}^{d\times d}$\\
+Let the 4 chosen (normalized) eigenvectors of $C$ be $e_1, e_2, e_3, e_4 \in \mathbb{R}^d$\\ 
+Let the original images (uncentered) be $\{x_i\}_{i=1}^N$, in this case $N = 16$\\
+Then, the projection of $x_i$ onto the new dimensions will be given by $\sum_{j=1}^{4}((x_i - \mu)\cdot e_j)e_j$.\\
+Now, since the projections are in a mean centered space, to come back into the uncentred space, we need to add $\mu$ to get the reconstruction of the original image:
+$$
+    \boxed{r_i = \mu + \sum_{j=1}^{4}((x_i - \mu)\cdot e_j)e_j}
+$$
+Thus, the coefficients used in the linear combination are $\boxed{c_{ij} = (x_i - \mu)\cdot e_j}$, now we need to prove that these coefficients indeed minimize the frobenius norm, which is equivalent to minimizing the square of the frobenius norm.\\
+
+For the $i^{th}$ unrolled image, square of the frobinius norm is given by:
+$$ 
+    f_i^2 = ||x_i - r_i||^2 
+$$
+
+Note that $x_i$ is \textbf{exactly} equal to $ \mu + \sum_{j=1}^{d}((x_i - \mu)\cdot e_j)e_j $ (Sum of projections over \textbf{all} the eigenvectors of $C$), thus:
+$$
+\begin{aligned}
+    f_i^2 &= \left|\left|\mu + \sum_{j=1}^{d}((x_i - \mu)\cdot e_j)e_j - (\mu + \sum_{j=1}^{4}((x_i - \mu)\cdot e_j)e_j)\right|\right|^2 \\
+    &= \left|\left|\sum_{j=1}^{d}((x_i - \mu)\cdot e_j)e_j - \sum_{j=1}^{4}((x_i - \mu)\cdot e_j)e_j\right|\right|^2\\
+    &= \left|\left|\sum_{j=5}^{d}((x_i - \mu)\cdot e_j)e_j\right|\right|^2 = \left|\left|\sum_{j=5}^{d}c_{ij}e_j\right|\right|^2\\
+    &\text{Since any pair of $e_j$s are orthogonal, and $e_j$ are unit vectors,}\\
+    f_i^2 &= \left|\left|\sum_{j=5}^{d}c_{ij}e_j\right|\right|^2 = \sum_{j=5}^{d}c_{ij}^2 = \sum_{j=5}^{d}((x_i - \mu)\cdot e_j)^2\\ 
+\end{aligned}
+$$
+Thus we need to \textbf{minimize} $ \sum_{j=5}^{d}((x_i - \mu)\cdot e_j)^2$\\
+Now, the variance of the projected data which PCA \textbf{maximizes} is $\sum_{j=1}^{4}((x_i - \mu)\cdot e_j)^2$\\
+Since, 
+$$ 
+\begin{aligned}
+    x_i &= \mu + \sum_{j=1}^{d}((x_i - \mu)\cdot e_j)e_j\\ 
+    (x_i - \mu)^2 &= (\sum_{j=1}^{d}((x_i - \mu)\cdot e_j)e_j)^2 \\
+    &\text{Since any pair of $e_j$s are orthogonal, and $e_j$ are unit vectors,}\\
+    &= \sum_{j=1}^{d}((x_i - \mu)\cdot e_j)^2 = \sum_{j=1}^{4}((x_i - \mu)\cdot e_j)^2 + \sum_{j=5}^{d}((x_i - \mu)\cdot e_j)^2\\
+    \Aboxed{(x_i - \mu)^2 &= constant =  \sum_{j=1}^{4}((x_i - \mu)\cdot e_j)^2 + \sum_{j=5}^{d}((x_i - \mu)\cdot e_j)^2} 
+\end{aligned}
+$$
+Thus, \textbf{maximizing} the variance of the projected data: $\sum_{j=1}^{4}((x_i - \mu)\cdot e_j)^2$ is same as \textbf{minimizing} the frobenius norm of the difference: $\sum_{j=5}^{d}((x_i - \mu)\cdot e_j)^2 = f_i^2 $.
+ 
+\medskip
+Thus, in effect, PCA minimizes the frobenius norm of the difference between the projected and the actual image.\\
+We follow the same way to reconstruct the images in our algorithm.\\
+Let $E = [e_1\  e_2\  e_3 \ e_4]^T \in \mathbb{R}^{d \times 4} $, let $X \in \mathbb{R}^{d \times 16}$ contain the mean centered data, then $A = X^TE \in \mathbb{R}^{16 \times 4}$, where $A_{ij} = c_{ij}$, and thus the reconstructed data $\hat X = \mu + EA^T \in \mathbb{R}^{d \times 16}$, here $\mu$ is added to each column of $EA^T$.\\
+In MATLAB:
+\begin{verbatim}
+    % data is the mean centered data 
+    % Q4 contains the 4 eigenvectors, coeffs contain the required coefficients 
+    coeffs = data' * Q4; % 16x4
+    data_reconstructed = mu + Q4*coeffs';
+\end{verbatim}
 
 
 \end{document}
