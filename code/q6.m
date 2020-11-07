@@ -1,6 +1,7 @@
 clc;
 clear;
 close all;
+rng(42);
 
 % Reading the data
 DATA_PATH = "../data/data_fruit/";
@@ -32,7 +33,6 @@ data = data./255;
 % Compute sample mean of the original (normalized) data
 mu = sum(data, 2)./N;
 
-% Preprocessing:
 % Centering the data about mu
 data = data - mu; 
 
@@ -65,6 +65,7 @@ for i=2:5
     axis off;
     title("Eigenvector: " + (i-1));
 end
+sgtitle("Mean and the eigenvectors");
 saveas(gcf, "plots/q6/q6i.jpg");
 clear i;
 
@@ -90,16 +91,38 @@ for i=1:16
     f = figure('visible', 'off');
     subplot(1, 2, 1);
     image(toImg(mu + data(:, i), SHAPE)); % Original uncentered image
-    title("Original: "+i);
+    title("Original");
     pbaspect([1 1 1]);
     axis off;
     subplot(1, 2, 2);
     image(toImg(data_reconstructed(:, i), SHAPE));
-    title("Reconstructed: "+i);
+    title("Reconstructed");
     pbaspect([1 1 1]);
+    sgtitle("Image: "+i);
     axis off;
     saveas(f, "plots/q6/comparison_"+i+".jpg");
 end
+
+% Part 3: Probabilistic PCA
+n_samples = 3;
+% Sampling the coefficients: coeffs ~ N(0, I)
+mu_mvg = zeros(4,1);
+cov_mvg = diag(max(coeffs)-min(coeffs));
+sampled_coeffs = mvnrnd(mu_mvg, cov_mvg, n_samples);
+generated_data = mu + Q4*sampled_coeffs';
+
+% Plotting the generated images:
+figure;
+for i=1:n_samples
+    subplot(1, n_samples, i);
+    image(toImg(generated_data(:, i), SHAPE));
+    pbaspect([1 1 1]);
+    axis off;
+    title("Generated image no. "+i);
+end
+sgtitle("Generated fruits");
+clear i;
+saveas(gcf, "plots/q6/generated_fruits.jpg");
 
 % MinMax scaler for scaling images to [0, 1]
 function [y] = toImg(x, shape)
