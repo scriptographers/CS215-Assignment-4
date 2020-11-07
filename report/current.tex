@@ -142,6 +142,11 @@ Thus, we need to find the first principal mode of variance/principal component o
 \medskip
 Let the sample mean be $\mu = \bigg(\mu_1 = \frac{\sum_{i=1}^{N}x_i}{N},\  \mu_2 = \frac{\sum_{i=1}^{N}y_i}{N}\bigg)$, then first we center the data about $\mu$.\\
 Let the sample covariance matrix of the new centered data be $C$.\\
+Since we are not allowed to use \texttt{cov()} and \texttt{mean()}, we compute the sample $\mu = \frac{\sum_{i=1}^{N}\mathbf{z_i}}{N}$.\\
+Let $Z = [\mathbf{z_i} - \mu]$ be a $N\times2$ matrix of the entire \textbf{mean-centered} observed data.\\
+Then $C = \frac{Z^T Z}{N-1}$ will give us the covariance matrix.
+
+\medskip
 On eigenvalue decomposition of $C$, we get $C = Q\Lambda Q^T$, let $\mathbf{d}$ correspond to the diagonal values of $\Lambda$, let $j = \text{argmax}_{i: 1\le i\le 2} \ \mathbf{d}$, then the $j^{th}$ column of Q corresponds to the principal mode of variation, $\mathbf{v} = (v_1, v_2)$
 
 \medskip
@@ -151,7 +156,13 @@ Thus, $m = \frac{v_2}{v_1}$, and $y = mx$, since this was the centered coordinat
 The same method as above has been implemented in \texttt{q3.m}
 
 \medskip
-The second set of points don't have a straight line relationship, as PCA fits the data along a straight line, this leads to a worse quality approximation compared to the first dataset, in which the points had a straight line relationship.
+In this case, PCA chooses the direction along which the variance of the projected data is maximized.\\
+The quality of the approximation worsens with the given data deviating from a linear relationship (when we want to fit a straight line through the data).\\
+In the worst case, consider the data distributed around a circle.\\
+In this case, all the directions through the mean will have approximately the same variance of the projected data, thus there is no ``best" direction.\\
+In the first case, there appears to be a linear relationship in the given data, thus reducing the dimension to 1 using PCA yields good quality results.\\
+In the second case, the data is distributed in an approximate ellipse, thus the major axis will be the direction which maximizes the variance of the projected data, however, in case of an ellipse, there is considerable variance along the minor axis too, PCA approximation loses this information about the original data and thus the quality of results is poor compared to the first set of data.\\
+Thus, trying to reduce the dimension of the data to 1, in data which varies along more than one direction is thus meaningless in most of the cases.
 
 \subsection*{Instructions for running the code:}
 \begin{enumerate}[itemsep=-1ex]

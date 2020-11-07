@@ -64,7 +64,7 @@ for i=2:5
     axis off;
     title("Eigenvector: " + (i-1));
 end
-saveas(gcf, "plots/q6i.jpg");
+saveas(gcf, "plots/q6/q6i.jpg");
 clear i;
 
 % Plot eigenvalues:
@@ -77,8 +77,28 @@ grid on;
 xlabel("n");
 ylabel("Eigenvalue");
 title("Question 6: First 10 Eigenvalues");
-saveas(gca, "plots/q6ii.jpg");
+saveas(gca, "plots/q6/q6ii.jpg");
 hold off;
+
+% Part 2: Reconstruction of original data
+coeffs = data' * Q4; % 16x4
+data_reconstructed = Q4*coeffs';
+
+hold off;
+for i=1:16
+    f = figure('visible', 'off');
+    subplot(1, 2, 1);
+    image(toImg(data(:, i), SHAPE));
+    title("Original: "+i);
+    pbaspect([1 1 1]);
+    axis off;
+    subplot(1, 2, 2);
+    image(toImg(data_reconstructed(:, i), SHAPE));
+    title("Reconstructed: "+i);
+    pbaspect([1 1 1]);
+    axis off;
+    saveas(f, "plots/q6/comparison_"+i+".jpg");
+end
 
 % MinMax scaler for scaling images to [0, 1]
 function [y] = toImg(x, shape)

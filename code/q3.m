@@ -4,7 +4,7 @@ close all;
 
 % Paths:
 DATA_PATHS = ["../data/points2D_Set1.mat", "../data/points2D_Set2.mat"];
-SAVE_PATHS = ["plots/q3i.jpg", "plots/q3ii.jpg"];
+SAVE_PATHS = ["plots/q3/q3i.jpg", "plots/q3/q3ii.jpg"];
 
 for i = [1 2]
     
