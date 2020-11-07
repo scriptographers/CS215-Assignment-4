@@ -3,8 +3,8 @@ clear;
 close all;
 
 % Paths:
-DATA_PATHS = ["../data/points2D_Set1.mat" "../data/points2D_Set2.mat"];
-SAVE_PATHS = ["plots/q3i.jpg" "plots/q3ii.jpg"];
+DATA_PATHS = ["../data/points2D_Set1.mat", "../data/points2D_Set2.mat"];
+SAVE_PATHS = ["plots/q3i.jpg", "plots/q3ii.jpg"];
 
 for i = [1 2]
     
@@ -25,26 +25,20 @@ for i = [1 2]
     data_uncentered = [x y]; % Nx2 matrix of observed data
 
     % Computing the sample mean
-    mean = sum(data_uncentered)./N;
+    mu = sum(data_uncentered)./N;
+    
     % Center the data about the mean
-    data = data_uncentered - mean;
+    data = data_uncentered - mu;
 
     % Computing the sample covariance matrix
-    C11 = sum(data(:,1).^2)/N;
-    CXX = sum(data(:,1).*data(:,2))/N;
-    C22 = sum(data(:,2).^2)/N;
-    C = [C11 CXX; CXX C22];
+    C = (1/(N-1)).*(data' * data);
+    
     % Eigenvalue decomposition of C
-    [Q, lambda] = eig(C);
-
-    % Selecting the principal mode of variance
-    diagonal = diag(lambda); % converts daigonal matrix into a column vector
-    [~, idx] = max(diagonal); % getting index via argmax
-    v = Q(:, idx); % Selecting column of q which corresponds to the principal mode of variance
+    [v, ~] = eigs(C, 1); % Select only the first principal component
 
     % Computing parameters of the line
     m = v(2)/v(1); % slope of the line to be fitted
-    c = mean(2)-m*mean(1); % intercept
+    c = mu(2)-m*mu(1); % intercept
 
     % Plotting the fitted line
     x_line = min(x):0.005:max(x); 
@@ -55,5 +49,4 @@ for i = [1 2]
     saveas(gcf, SAVE_PATHS(i)); % Save current figure
 
 end
-
-
+clear i;
