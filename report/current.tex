@@ -187,6 +187,7 @@ Thus, trying to reduce the dimension of the data to 1, in data which varies alon
 \addcontentsline{toc}{section}{Question 6}
 \setcounter{equation}{0}
 \setcounter{figure}{0}
+\subsection*{Closest Representation:}
 Let $d = 80\times80\times3$\\
 Let the sample mean of the original data be $\mu \in \mathbb{R}^d$, the sample covariance matrix of the original data be $C \in \mathbb{R}^{d\times d}$\\
 Let the 4 chosen (normalized) eigenvectors of $C$ be $e_1, e_2, e_3, e_4 \in \mathbb{R}^d$\\ 
@@ -239,5 +240,18 @@ In MATLAB:
     data_reconstructed = mu + Q4*coeffs';
 \end{verbatim}
 
+\subsection*{Generating new images:}
+For generating new images, we need to sample data in the reduced domain and then project it back into the original domain.\\
+In the projected domain, each point looks like $\mathbf{c} = [c_1\  c_2\  c_3\  c_4]^T \in \mathbb{R}^4$, to project this back into the original domain ($\mathbb{R}^d$):
+$$
+\begin{aligned}
+    x_{gen} &= \mu + \sum_{j=1}^{4}c_j\mathbf{e_j}\\
+\end{aligned}
+$$
+Thus, we need to sample $\mathbf{c}$.\\
+We assume that $c \thicksim \mathcal{N}(\mathbf{0}, C)$ (A 0-mean multivariate gaussian with covariance matrix $C \in \mathbb{R}^{4\times 4}$)\\
+We take $C = diag([\lambda_1, \lambda_2, \lambda_3, \lambda_4])$, since the variance of the original data along the chosen eigenvectors is given by the corresponding eigenvalues.\\
+Now we sample random vectors $\mathbf{c}$ from this multivariate gaussian, project back to the original space and plot the images.\\
+We achieve the following results which are different, but representative of the dataset:
 
 \end{document}
