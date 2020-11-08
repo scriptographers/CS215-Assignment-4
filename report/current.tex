@@ -71,7 +71,7 @@ Generate $n$ samples of the form $(x_1, x_2)$ where  $x_1, x_2 \thicksim U(-1, 1
 Find the number of such points which satisfy $x_1^2 + x_2^2 \le 1$, let this number be $n_u$\\
 Thus, $\frac{n_u}{n} \approx \frac{\pi}{4}$, an estimate of $\pi$ will be $\frac{4n_u}{n}$\\
 More formally, let $I_{||X||\le 1}(X)$ be the indicator function that yields 1 if $||X|| = \sqrt{X_1^2 + X_2^2}\le 1$, and is 0 otherwise.\\
-Then, $n_u = \sum_{i}^n I_{||x_i||\le 1}(x_i)$, thus an estimate for $\pi$ will be $\frac{\sum_{i}^n I_{||x_i||\le 1}(x_i)}{n}$
+Then, $n_u = \sum_{i}^n I_{||x_i||\le 1}(x_i)$, thus an estimate for $\pi$ will be $\frac{4\sum_{i}^n I_{||x_i||\le 1}(x_i)}{n}$
 
 \subsection*{(c)}
 Estimates of $\pi$ obtained for $N = 10, 10^2, 10^3, 10^4, 10^5, 10^6, 10^7, 10^8$ respectively
@@ -100,15 +100,32 @@ Our code handles $N = 10^9$ by computing $n_u$ using 10 $10^8$ (Similarly $\frac
 \end{verbatim}
 
 \subsection*{(d)}
-$n_u = \sum_{i}^n I_{||x_i||\le 1}(x_i)$, also $I_{||x_i||\le 1}(x_i)$ is a Bernoulli random variable with the parameter $p = \frac{\pi}{4}$.\\
-Thus, $n_u$ is the sum of $n$ Bernoulli RVs, i.e $n_u$ is binomially distributed.\\
-Let $\hat \pi = \frac{4n_u}{n}$ be the estimate of $\pi$.\\
-We need the minimum $n$ such that $ P(\pi - 0.01 \le \hat\pi \le \pi + 0.01) = 0.95$\\
-Let $a = \pi - 0.01, b = \pi + 0.01$, thus, we need $P(a \le \frac{4n_u}{n} \le b) = P(\frac{na}{4} \le n_u \le \frac{nb}{4}) = 0.95$\\
-We know that a binomial RV can be approximated by a Gaussian when $n$ is large (Central Limit Theorem).\\
-$ P(\frac{n(\pi - 0.01)}{4}-\frac{n\pi}{4} \le n_u-\frac{n\pi}{4} \le \frac{n(\pi+0.04)}{4}-\frac{n\pi}{4}) = 0.95 $\\
-$ P(\frac{-n(0.01)}{4} \le n_u-\frac{n\pi}{4} \le \frac{n(0.04)}{4}) = 0.95 $\\
-(TODO: normalize $n_u$ to standard normal and then see the table for 95\% confidence interval)
+$n_u = \sum_{i}^n I_{||x_i||\le 1}(x_i)$, also $y_i = I_{||x_i||\le 1}(x_i)$ is a Bernoulli random variable with the parameter $p = \frac{\pi}{4}$.\\
+Let $z = \frac{1}{n}\sum_{i=1}^{n}I_{||x_i||\le 1}(x_i)$ (Thus, an estimate of $\pi$ will be $4z$)\\
+Note that $\{y_i\}_{i=1}^n$ are IID RVs\\
+Let $var(y_i) = \sigma^2$, $E(y_i) = \mu$\\
+Then, by the central limit theorem, the RV $w = \sqrt{n}\frac{(z - \mu)}{\sigma}$ is approximately $\thicksim \mathcal{N}(0, 1)$\\
+We know that $\mu = \pi/4$ and $\sigma = \sqrt{(\pi/4)(1-\pi/4)}$ thus, (We know both of these exactly as we are allowed to assume that we know $\pi$ exactly)\\
+We need the smallest n such that $P(\pi - 0.01 \le 4z \le \pi + 0.01) = 0.95$\\
+$$
+    \begin{aligned}
+        P(\pi - 0.01 \le 4z \le \pi + 0.01) &= P((\pi - 0.01)/4 \le z \le (\pi + 0.01)/4)\\
+        &= P(- 0.01/4 \le z-\mu \le  0.01/4)\\
+        &= P(-0.01\sqrt{n}/4 \le \sqrt{n}(z-\mu) \le 0.01\sqrt{n}/4)\\
+        &= P\left(-\frac{0.01\sqrt{n}}{4\sigma} \le w \le \frac{0.01\sqrt{n}}{4\sigma} \right) = 0.95
+    \end{aligned}
+$$
+Thus, we need a $95\%$ confidence interval of $w$\\
+We know that the 95\% confidence interval for the standard normal distribution is the interval $(-1.96, 1.96)$\\
+Thus,
+$$
+    \begin{aligned}
+        \frac{0.01\sqrt{n}}{4\sigma} &= 1.96\\
+        n &= (196\times4\sigma)^2 \\ 
+        &= \left(196\times4\sqrt{\frac{\pi(4-\pi)}{16}}\right)^2\\
+        &\approx \boxed{103599}
+    \end{aligned}
+$$
 
 \subsection*{Instructions for running the code:}
 \begin{enumerate}[itemsep=-1ex]
