@@ -19,7 +19,7 @@ cov_err = zeros(100, 5);
 for lN=1:5 % Looping over values of log10(N)
     N = 10^lN;
     for iter=1:100 % Repeating 100 times for a given N
-        rng(iter); % Setting seed to reproduce results
+        rng(2*iter); % Setting seed to reproduce results
         x_mu = A * randn(2,N); % values from (X - mu)
         x = x_mu + mu; % values from X
         
@@ -47,7 +47,7 @@ for lN=1:5 % Looping over values of log10(N)
     line([0 ep(1)] + mean_mle(1), [0 ep(2)] + mean_mle(2),'Color','red','LineStyle','--','LineWidth',1);
 
     title(sprintf("N = %i", N));
-    saveas(gcf, sprintf("d_%i.jpg", N)); % Save current figure
+    saveas(gcf, sprintf("plots/q2/d_%i.jpg", N)); % Save current figure
 end
 
 hold off;
@@ -56,7 +56,7 @@ boxplot(mean_err);
 title('Error b/w True mean & ML estimate');
 ylabel('Error');
 xlabel('log_{10}(N)');
-saveas(gcf, "mean_err.jpg"); % Save current figure
+saveas(gcf, "plots/q2/mean_err.jpg"); % Save current figure
 
 hold off;
 % Box plotting the covariance error values for different N
@@ -64,7 +64,7 @@ boxplot(cov_err);
 title('Error b/w True covariance & ML estimate');
 ylabel('Error');
 xlabel('log_{10}(N)');
-saveas(gcf, "cov_err.jpg"); % Save current figure
+saveas(gcf, "plots/q2/cov_err.jpg"); % Save current figure
 
 close all;
 
