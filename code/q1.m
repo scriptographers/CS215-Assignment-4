@@ -13,7 +13,7 @@ for n = n_list
 end
 
 
-% For large values of n (>= 10^9), we sample n/10^8 10^8 arrays 
+% For large values of n (>= 10^9), we sample n/10^8 10^8 arrays
 n_fixed = single(10^8);
 n_large = single(10^9);
 n_iters = single(n_large/n_fixed);
@@ -27,5 +27,3 @@ end
 
 pi_accurate = 4*single(n_u/n_large);
 fprintf("(Large N) N = %i, pi = %.4f \n", n_large, pi_accurate);
-
-

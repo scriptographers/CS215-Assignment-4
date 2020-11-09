@@ -25,7 +25,7 @@ for lN=1:5 % Looping over values of log10(N)
         
         % ML estimate of mean is sum(x)/N
         mean_mle = sum(x,2) / N;
-         % ML estimate of covariance matrix is sum((x-mu)(x-mu)')/N
+        % ML estimate of covariance matrix is sum((x-mu)(x-mu)')/N
         cov_mle = x_mu*x_mu' / N;
         
         % Error measure of mean and covariance
@@ -34,7 +34,7 @@ for lN=1:5 % Looping over values of log10(N)
     end
     
     hold off;
-     % Plot data points for seed=100
+    % Plot data points for seed=100
     scatter(x(1,:), x(2,:));
     
     % Calculating principal mode of variation
@@ -45,7 +45,7 @@ for lN=1:5 % Looping over values of log10(N)
         ep = D(2,2)*Q(:, 2);
     end
     line([0 ep(1)] + mean_mle(1), [0 ep(2)] + mean_mle(2),'Color','red','LineStyle','--','LineWidth',1);
-
+    
     title(sprintf("N = %i", N));
     saveas(gcf, sprintf("plots/q2/d_%i.jpg", N)); % Save current figure
 end
@@ -71,4 +71,3 @@ close all;
 function ret = norm(vec)
     ret = sqrt(sum(vec.*vec, 'all'));
 end
-

@@ -28,17 +28,18 @@ for digit=0:9
     subplot(1,3,1);
     imagesc(reshape(mean - sqrt(lamb1)*v1, [WIDTH WIDTH]));
     title("\mu - \surd{\lambda_1} * v_1");
-    axis equal, axis off;
-    
+    pbaspect([1 1 1]);
+    axis off;
     subplot(1,3,2);
     imagesc(reshape(mean, [WIDTH WIDTH]));
     title("\mu");
-    axis equal, axis off;
-    
+    pbaspect([1 1 1]);
+    axis off;
     subplot(1,3,3);
     imagesc(reshape(mean + sqrt(lamb1)*v1, [WIDTH WIDTH]))
     title("\mu + \surd{\lambda_1} * v_1");
-    axis equal, axis off;
+    pbaspect([1 1 1]);
+    axis off;
     
     sgtitle(sprintf("Digit %i", digit));
     colormap('gray');
@@ -51,7 +52,7 @@ for digit=0:9
     sgtitle("");
     saveas(gcf, sprintf("plots/q4/eigenvalues_%i.jpg", digit)); % Save current figure
     semilogx(1:SIZE,dia);
-    fprintf("Significant mode of variations for Digit %i is %i (Number of Eigenvalues > 1%% of Max Eigenvalue)\n", digit, sum(dia>=dia(1)/100));
+    fprintf("%i Significant mode of variations for Digit %i (Number of Eigenvalues > 1%% of Max Eigenvalue)\n", sum(dia>dia(1)/100), digit);
     title(sprintf("Sorted Eigenvalues for Digit %i (X-axis log scaled)", digit));
     saveas(gcf, sprintf("plots/q4/eigenvalues_log_%i.jpg", digit)); % Save current figure
 end

@@ -18,7 +18,7 @@ for i = 1:N
     data = [data x];
 end
 
-% Cast as double for further processing: 
+% Cast as double for further processing:
 data = double(data);
 
 % Clear variables not needed further:
@@ -34,7 +34,7 @@ data = data./255;
 mu = sum(data, 2)./N;
 
 % Centering the data about mu
-data = data - mu; 
+data = data - mu;
 
 % Computing the covariance matrix (19200 x 19200) matrix (This shall take up 2.6GB of your RAM)
 C = (1/(N-1)).*(data * data');
@@ -52,7 +52,7 @@ clear Q;
 clear L;
 
 % Part 1:
-% 1+4 mean + Eigenvectors plots 
+% 1+4 mean + Eigenvectors plots
 subplot(1,5,1);
 image(toImg(mu, SHAPE));
 pbaspect([1 1 1]);
@@ -123,6 +123,8 @@ end
 sgtitle("Generated fruits");
 clear i;
 saveas(gcf, "plots/q6/generated_fruits.jpg");
+
+close all;
 
 % MinMax scaler for scaling images to [0, 1]
 function [y] = toImg(x, shape)
