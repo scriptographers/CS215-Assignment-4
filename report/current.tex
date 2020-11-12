@@ -142,6 +142,112 @@ $$
 \addcontentsline{toc}{section}{Question 2}
 \setcounter{equation}{0}
 \setcounter{figure}{0}
+\subsection*{(a)}
+Let the 2D Gaussian Random Vector be $X = AW + \mu$, where W is a vector of 2 i.i.d Standard Normal Random Variables. \\
+We are given $\mu = [1\ 2]^T$, we need to find $A$ from covariance matrix $C = AA^T$. \\
+$C$ is a Symmetric Positive Definite Matrix, and can be represented as $QDQ^T$, where $Q$ is a orthogonal Matrix and $D$ is a Diagonal Matrix. These matrices can easily be calculated by \verb!eig! function in \verb!MATLAB!. \\
+$C = QDQ^T = AA^T \implies A = QD^{0.5}$, \\
+D is a diagonal matrix with positive diagonal elements as Eigenvalues of a SPD Matrix are positive.
+\begin{verbatim}
+mu = [1; 2];
+cov = [1.6250 -1.9486; -1.9486 3.8750];
+[Q, D] = eig(cov);
+A = Q*sqrt(D);
+\end{verbatim}
+We can get values from i.i.d Standard normal distribution using \verb!randn!, this would constitute the $W$.
+\begin{verbatim}
+x_mu = A * randn(2,N); % values from (X - mu)
+x = x_mu + mu; % values from X
+\end{verbatim}
+Here, $N$ is size of the sample data. \\
+The sample points from the 2D Gaussian are stored in variable \verb!x! in the workspace in form of a 2xN matrix
+
+\subsection*{(b)}
+We proved in class that ML Estimate $\hat{\mu}$ is sample mean $\sum_{i=1}^N x_i / N$.\\
+It can be computed in \verb!MATLAB! using \verb!sum!.
+\begin{verbatim}
+mean_mle = sum(x,2) / N;
+\end{verbatim}
+For calculating the error measure, I defined \verb!norm! function to calculated 2-norm for vector and Frobenius norm for matrices (required in (c)).
+\begin{verbatim}
+function ret = norm(x)
+    ret = sqrt(sum(x.*x, 'all'));
+    % 'all' makes this function useful for calculating 2-norm for vectors
+    % and frobenius norm for matrices
+end
+\end{verbatim}
+The error measure for mean is calculated and stored in a 100x5 matrix \verb!mean_err!.
+\begin{verbatim}
+mean_err(iter,lN) = norm(mu - mean_mle) / norm_mu;
+\end{verbatim}
+
+\subsection*{(c)}
+We proved in class that ML Estimate $\hat{C}_N$ is sample covariance $\sum_{i=1}^N (x_i - \mu) (x_i - \mu)^T / N$.\\
+It can be computed in \verb!x_mu! $\equiv X - \mu$ which was created while generating the random variables.
+\begin{verbatim}
+cov_mle = x_mu*x_mu' / N;
+\end{verbatim}
+The error measure for covariance is calculated and stored in a 100x5 matrix \verb!cov_err!.
+\begin{verbatim}
+cov_err(iter,lN) = norm(cov - cov_mle) / norm_cov;
+\end{verbatim}
+\newpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{q2/mean_err.jpg}
+    \caption{Box plot of the error between the true mean $\mu$ and the ML estimate $\hat{\mu}_N$}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{q2/cov_err.jpg}
+    \caption{Box plot of the error between the true covariance $C$ and the ML estimate $\hat{C}_N$}
+\end{figure}
+
+\subsection*{(d)}
+From PCA, we know that principal mode of variation of data lies in the direction of the eigenvector corresponding to highest eigenvalue obtained on Eigen decomposition of the sample covariance matrix (here, \verb!cov_mle!). \\
+Again, using \verb!eig! function we obtain the diagonal matrix \verb!lambda! whose diagonal elements are the eigenvalues. \\
+As we only have two eigenvalues, a simple \verb!if-else! can be used to determine the principal mode of variation. \\
+As we use sample mean (here, \verb!mean_mle!) to get the line and plot it using \verb!line!.
+\begin{verbatim}
+[Q, lambda] = eig(cov_mle);
+if lambda(1, 1) > lambda(2, 2)
+    ep = D(1,1)*Q(:, 1);
+else
+    ep = D(2,2)*Q(:, 2);
+end
+line([0 ep(1)] + mean_mle(1), [0 ep(2)] + mean_mle(2));
+\end{verbatim}
+
+Plots for N = {$10$, $10^2$, $10^3$, $10^4$, $10^5$}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{q2/d_10.jpg}
+    \caption{Scatter Plot for $N = 10$ with line showing principal mode of variation}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{q2/d_100.jpg}
+    \caption{Scatter Plot for $N = 10^2$ with line showing principal mode of variation}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{q2/d_1000.jpg}
+    \caption{Scatter Plot for $N = 10^3$ with line showing principal mode of variation}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{q2/d_10000.jpg}
+    \caption{Scatter Plot for $N = 10^4$ with line showing principal mode of variation}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{q2/d_100000.jpg}
+    \caption{Scatter Plot for $N = 10^5$ with line showing principal mode of variation}
+\end{figure}
+
+
+
+
 
 \newpage
 \section*{Question 3}
@@ -193,11 +299,261 @@ Thus, trying to reduce the dimension of the data to 1, in data which varies alon
 \setcounter{equation}{0}
 \setcounter{figure}{0}
 
+First, we extract the images of handwritten digits from dataset \verb!"mnist.mat"! and recast the training data into double and normalize it. \\
+Normalization helps to reduce errors which otherwise occur due to high range of values in covariance matrix. \\
+We also reshape the images into a vector for ease of computation.
+\begin{verbatim}
+DATA_PATH = "../data/mnist.mat";
+load(DATA_PATH, "-mat"); % Load data
+N = length(digits_train);
+WIDTH = size(digits_train, 1);
+SIZE = WIDTH^2;
+% Reshape, Recast, Normalize image intensity
+train_data = cast(reshape(digits_train, [SIZE N]), 'double')/255;
+\end{verbatim}
+
+Now, we have to tasks ahead, to find the mean and covariance and then find the principal mode of variations (eigenvectors of covariance matrix).
+\begin{verbatim}
+count = sum(labels_train==digit);
+digit_data = train_data(:, labels_train == digit);
+mean = sum(digit_data, 2)/count; % sample mean
+cov = (digit_data-mean)*(digit_data'-mean')/(count-1); % sample cov
+\end{verbatim}
+The above code snippet is inside a for loop iterating over \verb!digit! which stores the digit we are working on. \\
+First, we \verb!count! the number of images (N) of the digit in the training data and then find sample mean $\mu = \sum_{i=1}^N x_i / N$ and sample covariance $C = \sum_{i=1}^N (x_i - \mu) (x_i - \mu)^T / (N - 1)$. \\
+
+Next, we use \verb!eig! function for Eigen Decomposition of the covariance matrix.
+\begin{verbatim}
+[Q, D] = eig(cov);
+dia = diag(D); % Get the diagonals elements as a vector
+
+% Find the highest eigenvalue and its corresponding eigenvector
+[lamb1, index1] = max(dia);
+v1 = Q(:,index1);
+
+% Sort the eigenvalues to analyse their distribution
+dia = sort(dia,'descend');
+dia(dia<0)=0; % Fixing precision error due to eig()
+\end{verbatim}
+It was observed that \verb!eig! returned eigenvalues like $-10^{-10}$, which we know is only precision error as eigenvalues of a Positive semi-definite matrix are non-negative. \\
+
+We plot the sorted eigenvalues (784 in total) and we observe a sudden dip very soon. To further analyse, we plot it with log scale on X-axis and observe that by the time we reach 10, the values have fallen to less than 20\% of highest value (located at 1) for all digits. \\
+For some digits (especially 1), the decrease is more drastic than others.
+
+We compute the number of eigenvalues having value more than 1\% of the highest value and here is the result. (Also printed on Console in MATLAB)
+\begin{verbatim}
+56 Significant modes of variation for Digit 0 (Number of Eigenvalues > 1% of Max Eigenvalue)
+27 Significant modes of variation for Digit 1 (Number of Eigenvalues > 1% of Max Eigenvalue)
+86 Significant modes of variation for Digit 2 (Number of Eigenvalues > 1% of Max Eigenvalue)
+86 Significant modes of variation for Digit 3 (Number of Eigenvalues > 1% of Max Eigenvalue)
+83 Significant modes of variation for Digit 4 (Number of Eigenvalues > 1% of Max Eigenvalue)
+69 Significant modes of variation for Digit 5 (Number of Eigenvalues > 1% of Max Eigenvalue)
+60 Significant modes of variation for Digit 6 (Number of Eigenvalues > 1% of Max Eigenvalue)
+63 Significant modes of variation for Digit 7 (Number of Eigenvalues > 1% of Max Eigenvalue)
+89 Significant modes of variation for Digit 8 (Number of Eigenvalues > 1% of Max Eigenvalue)
+63 Significant modes of variation for Digit 9 (Number of Eigenvalues > 1% of Max Eigenvalue)
+\end{verbatim}
+
+The observed values are far less than $28^2 = 784$. \\
+One of the many obvious reason is the consistent background. There are several pixels in the background which are more or less left untouched by the person drawing the digits. \\
+Another reason is that it is a common knowledge on how to draw a given digit and so the human-error is not prominent either. \\ 
+
+For the next part, we use the calculated principal mode of variation \verb!v1! and it corresponding eigenvalue \verb!lambda1! to draw\footnote{I have used \texttt{pbaspect([1 1 1])} in place of suggested \texttt{axis equal}, here both are equivalent as range of both axes is (1,28)} the 3 images of form: $\mu - \sqrt{\lambda_1}v_1$, $\mu$ and $\mu + \sqrt{\lambda_1}v_1$. \\
+In all digits except 0 and 2, we observe that the three images mostly differ by rotation of the digit. \\
+In digit 0, in addition to the difference in rotation, we also observe some circular to elliptical transform (compressing along the horizontal axis). \\
+In digit 2, we observe that the lobe at the bottom turn while drawing digit varies in size along with a observable rotation (though less significant)
+
+For digit 1, the principal mode of variation tells that people write 1 more like a straight line which maybe slanted (forward slash). Maximum variation is observed in angle of the line. 
+
+\newpage
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_0.jpg}}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_log_0.jpg}}
+    \end{floatrow}
+    \vspace{1em}
+    \begin{floatrow}
+        \ffigbox[0.9\textwidth]{}
+        {\includegraphics[height=0.7\textwidth]{q4/trip_img_0.jpg}}
+    \end{floatrow}
+\end{figure}
+\newpage
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_1.jpg}}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_log_1.jpg}}
+    \end{floatrow}
+    \vspace{1em}
+    \begin{floatrow}
+        \ffigbox[0.9\textwidth]{}
+        {\includegraphics[height=0.7\textwidth]{q4/trip_img_1.jpg}}
+    \end{floatrow}
+\end{figure}
+\newpage
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_2.jpg}}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_log_2.jpg}}
+    \end{floatrow}
+    \vspace{1em}
+    \begin{floatrow}
+        \ffigbox[0.9\textwidth]{}
+        {\includegraphics[height=0.7\textwidth]{q4/trip_img_2.jpg}}
+    \end{floatrow}
+\end{figure}
+\newpage
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_3.jpg}}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_log_3.jpg}}
+    \end{floatrow}
+    \vspace{1em}
+    \begin{floatrow}
+        \ffigbox[0.9\textwidth]{}
+        {\includegraphics[height=0.7\textwidth]{q4/trip_img_3.jpg}}
+    \end{floatrow}
+\end{figure}
+\newpage
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_4.jpg}}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_log_4.jpg}}
+    \end{floatrow}
+    \vspace{1em}
+    \begin{floatrow}
+        \ffigbox[0.9\textwidth]{}
+        {\includegraphics[height=0.7\textwidth]{q4/trip_img_4.jpg}}
+    \end{floatrow}
+\end{figure}
+\newpage
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_5.jpg}}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_log_5.jpg}}
+    \end{floatrow}
+    \vspace{1em}
+    \begin{floatrow}
+        \ffigbox[0.9\textwidth]{}
+        {\includegraphics[height=0.7\textwidth]{q4/trip_img_5.jpg}}
+    \end{floatrow}
+\end{figure}
+\newpage
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_6.jpg}}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_log_6.jpg}}
+    \end{floatrow}
+    \vspace{1em}
+    \begin{floatrow}
+        \ffigbox[0.9\textwidth]{}
+        {\includegraphics[height=0.7\textwidth]{q4/trip_img_6.jpg}}
+    \end{floatrow}
+\end{figure}
+\newpage
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_7.jpg}}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_log_7.jpg}}
+    \end{floatrow}
+    \vspace{1em}
+    \begin{floatrow}
+        \ffigbox[0.9\textwidth]{}
+        {\includegraphics[height=0.7\textwidth]{q4/trip_img_7.jpg}}
+    \end{floatrow}
+\end{figure}
+\newpage
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_8.jpg}}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_log_8.jpg}}
+    \end{floatrow}
+    \vspace{1em}
+    \begin{floatrow}
+        \ffigbox[0.9\textwidth]{}
+        {\includegraphics[height=0.7\textwidth]{q4/trip_img_8.jpg}}
+    \end{floatrow}
+\end{figure}
+\newpage
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_9.jpg}}
+        \ffigbox[0.45\textwidth]{}
+        {\includegraphics[height=0.35\textwidth]{q4/eigenvalues_log_9.jpg}}
+    \end{floatrow}
+    \vspace{1em}
+    \begin{floatrow}
+        \ffigbox[0.9\textwidth]{}
+        {\includegraphics[height=0.7\textwidth]{q4/trip_img_9.jpg}}
+    \end{floatrow}
+\end{figure}
+
 \newpage
 \section*{Question 5}
 \addcontentsline{toc}{section}{Question 5}
 \setcounter{equation}{0}
 \setcounter{figure}{0}
+We continue with approach explained Question 4 for extracting the data and calculating sample mean and sample covariance.
+
+
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.47\textwidth]{}
+        {\includegraphics[height=0.40\textwidth]{q5/comp_0.jpg}}
+        \ffigbox[0.47\textwidth]{}
+        {\includegraphics[height=0.40\textwidth]{q5/comp_1.jpg}}
+    \end{floatrow}
+\end{figure}
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.47\textwidth]{}
+        {\includegraphics[height=0.40\textwidth]{q5/comp_2.jpg}}
+        \ffigbox[0.47\textwidth]{}
+        {\includegraphics[height=0.40\textwidth]{q5/comp_3.jpg}}
+    \end{floatrow}
+\end{figure}
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.47\textwidth]{}
+        {\includegraphics[height=0.40\textwidth]{q5/comp_4.jpg}}
+        \ffigbox[0.47\textwidth]{}
+        {\includegraphics[height=0.40\textwidth]{q5/comp_5.jpg}}
+    \end{floatrow}
+\end{figure}
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.47\textwidth]{}
+        {\includegraphics[height=0.40\textwidth]{q5/comp_6.jpg}}
+        \ffigbox[0.47\textwidth]{}
+        {\includegraphics[height=0.40\textwidth]{q5/comp_7.jpg}}
+    \end{floatrow}
+\end{figure}
+\begin{figure}[H]
+    \begin{floatrow}
+        \ffigbox[0.47\textwidth]{}
+        {\includegraphics[height=0.40\textwidth]{q5/comp_8.jpg}}
+        \ffigbox[0.47\textwidth]{}
+        {\includegraphics[height=0.40\textwidth]{q5/comp_9.jpg}}
+    \end{floatrow}
+\end{figure}
 
 \newpage
 \section*{Question 6}
