@@ -26,12 +26,12 @@ for digit=0:9
     subplot(1,2,1);
     imagesc(reshape(test_data, [WIDTH WIDTH]));
     title("Original Image");
-    pbaspect([1 1 1]);
+    pbaspect([1 1 1]); % equivalent to axis equal here as range of both axes is (1,28)
     axis off;
     subplot(1,2,2);
     imagesc(reshape(reconstruct_img(reduced_data, Q, mean), [WIDTH WIDTH]));
     title("Reconstructed Image");
-    pbaspect([1 1 1]);
+    pbaspect([1 1 1]); % equivalent to axis equal here as range of both axes is (1,28)
     axis off;
     
     sgtitle(sprintf("Digit %i", digit));

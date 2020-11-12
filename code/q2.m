@@ -44,7 +44,7 @@ for lN=1:5 % Looping over values of log10(N)
     else
         ep = D(2,2)*Q(:, 2);
     end
-    line([0 ep(1)] + mean_mle(1), [0 ep(2)] + mean_mle(2),'Color','red','LineStyle','--','LineWidth',1);
+    line([0 ep(1)] + mean_mle(1), [0 ep(2)] + mean_mle(2), 'Color', 'red', 'LineStyle', '--', 'LineWidth', 1);
     
     title(sprintf("N = %i", N));
     saveas(gcf, sprintf("plots/q2/d_%i.jpg", N)); % Save current figure
@@ -68,6 +68,8 @@ saveas(gcf, "plots/q2/cov_err.jpg"); % Save current figure
 
 close all;
 
-function ret = norm(vec)
-    ret = sqrt(sum(vec.*vec, 'all'));
+function ret = norm(x)
+    ret = sqrt(sum(x.*x, 'all'));
+    % 'all' makes this function useful for calculating 2-norm for vectors
+    % and frobenius norm for matrices
 end
