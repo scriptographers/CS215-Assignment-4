@@ -5,7 +5,7 @@ close all;
 DATA_PATH = "../data/mnist.mat";
 load(DATA_PATH, "-mat"); % Load data
 N = length(digits_train);
-WIDTH = 28;
+WIDTH = size(digits_train, 1);
 SIZE = WIDTH^2;
 % Reshape, Recast, Normalize image intensity
 train_data = cast(reshape(digits_train, [SIZE N]), 'double')/255;
@@ -45,11 +45,12 @@ function [Q_all, mean_all] = reduction_basis(data, labels, no_pmv)
     for digit=0:9
         count = sum(labels==digit);
         digit_data = data(:, labels == digit);
-        mean = sum(digit_data, 2)/count; % MLE of mean
-        cov = (digit_data-mean)*(digit_data'-mean')/count; % MLE of cov
+        mean = sum(digit_data, 2)/count; % sample mean
+        cov = (digit_data-mean)*(digit_data'-mean')/(count-1); % sample cov
 
         % Eigendecomposition of cov: eigs() is much much faster than eig()
-        [Q, L] = eigs(cov, no_pmv); % Get "no_pmv" (84) largest eigenvalues and corresponding eigenvectors
+        [Q, L] = eigs(cov, no_pmv);
+        % Get "no_pmv" (84) largest eigenvalues and corresponding eigenvectors
         % Q represents "no_pmv" (84) columns representing a 84-dimensional basis
 
         Q_all(digit+1, :, :) = Q;

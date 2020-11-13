@@ -11,7 +11,7 @@ for i = [1 2]
     load(DATA_PATHS(i), "-mat");
     
     % Scatter Plot
-    hold off;
+    figure;
     scatter(x, y, 5, "filled");
     grid on;
     axis equal;
@@ -47,4 +47,5 @@ for i = [1 2]
     legend(["Given Data", "Fitted line using PCA"], "Location", "Northwest");
     saveas(gcf, SAVE_PATHS(i)); % Save current figure
 end
+
 clear i;
