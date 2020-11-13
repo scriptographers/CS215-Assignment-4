@@ -10,17 +10,14 @@ SIZE = WIDTH^2;
 % Reshape, Recast, Normalize image intensity
 train_data = cast(reshape(digits_train, [SIZE N]), 'double')/255;
 
+[Q_all, mean_all] = reduction_basis(train_data, labels_train, 84);
+
 for digit=0:9
-    count = sum(labels_train==digit);
     digit_data = train_data(:, labels_train == digit);
-    mean = sum(digit_data, 2)/count; % MLE of mean
-    cov = (digit_data-mean)*(digit_data'-mean')/count; % MLE of cov
-    
-    % Eigendecomposition of cov: eigs() is much much faster than eig()
-    [Q, L] = eigs(cov, 84); % Get 84 largest eigenvalues and corresponding eigenvectors
-    % Q represents 84 columns representing a 84-dimensional basis
-    
     test_data = digit_data(:,end); % Seemed to give nice results
+    Q = reshape(Q_all(digit+1, :, :), [SIZE, 84]);
+    mean = reshape(mean_all(digit+1, :), [SIZE 1]);
+    
     reduced_data = reduce_dim(test_data, Q, mean);
     
     subplot(1,2,1);
@@ -40,6 +37,25 @@ for digit=0:9
 end
 
 close all;
+
+function [Q_all, mean_all] = reduction_basis(data, labels, no_pmv)
+    % no_pmv is the number of principal modes of variation
+    Q_all = zeros(10, 784, no_pmv);
+    mean_all = zeros(10, 784);
+    for digit=0:9
+        count = sum(labels==digit);
+        digit_data = data(:, labels == digit);
+        mean = sum(digit_data, 2)/count; % MLE of mean
+        cov = (digit_data-mean)*(digit_data'-mean')/count; % MLE of cov
+
+        % Eigendecomposition of cov: eigs() is much much faster than eig()
+        [Q, L] = eigs(cov, no_pmv); % Get "no_pmv" (84) largest eigenvalues and corresponding eigenvectors
+        % Q represents "no_pmv" (84) columns representing a 84-dimensional basis
+
+        Q_all(digit+1, :, :) = Q;
+        mean_all(digit+1, :) = mean;
+    end
+end
 
 function [reduced_data] = reduce_dim(digit_img, Q, mean)
     reduced_data = Q'*(digit_img-mean);
