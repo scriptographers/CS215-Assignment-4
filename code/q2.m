@@ -32,9 +32,9 @@ for lN=1:5 % Looping over values of log10(N)
         cov_err(iter,lN) = norm(cov - cov_mle) / norm_cov; % Where lN = log10(N)
     end
     
-    hold off;
+    figure;
     % Plot data points for seed=100
-    scatter(x(1,:), x(2,:));
+    scatter(x(1,:), x(2,:), 10/((lN)^(1.2)), "filled");
     
     % Calculating principal mode of variation
     [Q, lambda] = eig(cov_mle);
@@ -43,22 +43,24 @@ for lN=1:5 % Looping over values of log10(N)
     else
         ep = D(2,2)*Q(:, 2);
     end
-    line([0 ep(1)] + mean_mle(1), [0 ep(2)] + mean_mle(2), 'Color', 'red', 'LineStyle', '--', 'LineWidth', 1);
-    
+    hold on;
+    quiver(mean_mle(1), mean_mle(2), ep(1), ep(2), 'Color', 'red', 'LineStyle', '-', 'LineWidth', 1);
+    scatter(mean_mle(1), mean_mle(2), 250, 'r.');
     title(sprintf("N = %i", N));
     saveas(gcf, sprintf("plots/q2/d_%i.jpg", N)); % Save current figure
+    hold off;
 end
 
-hold off;
 % Box plotting the mean error values for different N
+figure;
 boxplot(mean_err);
 title('Error b/w True mean & ML estimate');
 ylabel('Error');
 xlabel('log_{10}(N)');
 saveas(gcf, "plots/q2/mean_err.jpg"); % Save current figure
 
-hold off;
 % Box plotting the covariance error values for different N
+figure;
 boxplot(cov_err);
 title('Error b/w True covariance & ML estimate');
 ylabel('Error');

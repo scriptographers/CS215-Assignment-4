@@ -48,5 +48,3 @@ for i = [1 2]
     saveas(gcf, SAVE_PATHS(i)); % Save current figure
 end
 clear i;
-
-close all;
