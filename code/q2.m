@@ -6,7 +6,7 @@ close all;
 mu = [1; 2];
 cov = [1.6250 -1.9486; -1.9486 3.8750];
 [Q, D] = eig(cov);
-A = Q*sqrt(D);
+A = Q*sqrt(D); % square root of a diagonal matrix is square root of individual elements
 
 % Find norm of mu and frobenius norm of cov
 norm_mu = norm(mu);
@@ -20,17 +20,16 @@ for lN=1:5 % Looping over values of log10(N)
     N = 10^lN;
     for iter=1:100 % Repeating 100 times for a given N
         rng(2*iter); % Setting seed to reproduce results
-        x_mu = A * randn(2,N); % values from (X - mu)
-        x = x_mu + mu; % values from X
+        x = A * randn(2,N) + mu; % values from X
         
         % ML estimate of mean is sum(x)/N
         mean_mle = sum(x,2) / N;
-        % ML estimate of covariance matrix is sum((x-mu)(x-mu)')/N
-        cov_mle = x_mu*x_mu' / N;
+        % ML estimate of covariance matrix is sum((x-mu^)(x-mu^)')/N
+        cov_mle = (x-mean_mle)*(x-mean_mle)' / N;
         
         % Error measure of mean and covariance
-        mean_err(iter,lN) = norm(mu - mean_mle) / norm_mu;
-        cov_err(iter,lN) = norm(cov - cov_mle) / norm_cov;
+        mean_err(iter,lN) = norm(mu - mean_mle) / norm_mu; % Where lN = log10(N)
+        cov_err(iter,lN) = norm(cov - cov_mle) / norm_cov; % Where lN = log10(N)
     end
     
     hold off;
